@@ -23,69 +23,45 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-// app.param('date', function(req, res, next, date) {
-
-//   dateUTC = date.toUTC();
-//   dateUnix = date.valueOf();
-//   // save name to the request
-//   // req.dateUTC = dateUTC;
-//   // req.dateUnix = dateUnix;
-//   next();
-// });
-
-app.get("/api/timestamp/:date?", (req,res)=>{
-  
-  variavelData = req.params[0];
-  var data = new Date(variavelData);
-  // console.log(typeof data);
-  // var  date = new Date();
-  res.json({
-    // unix: variavelData.valueOf(), 
-    unix: data.valueOf(),
-    utc: data.toUTCString()
-  });
-  
-});
-
-app.get("date", (req,res)=>{
-  
-
-});
-
 //RETORNA O DIA EM QUE A PESSOA FEZ A SOLICITAÇÃO
-app.get("/api", (req,res)=>{
-  // console.log("oiiiiiiiiiiiii");
-  // let jsonDate = new Date();
-  // let currentTimeZone = jsonDate.getTimezoneOffset() / 60;
-  var today = new Date();
-  console.log(typeof today);
-  var dd = String(today.getDate()).padStart(2, '0');
-  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-  var yyyy = today.getFullYear();
-  today = mm + '/' + dd + '/' + yyyy;
-  // console.log("hoje"+today);
-  res.json({today: today,
-    day: dd,
-    month: mm 
+  app.get("/api/timestamp", (req,res)=>{
+    var today = new Date();
+    console.log(typeof today);
+    var utc =  today.toUTCString();
+    var unix = today.valueOf();
+    res.json({
+      unix: unix,
+      utc: utc 
+    });
   });
+
+  app.get("/api/timestamp/:date?", (req,res)=>{    
+    let variavelData = new Date(String(req.params.date));
+    let valid = variavelData.getTime() > 0 ;
+    console.log(typeof req.params.date);
+    
+    if( (new Date(parseInt(req.params.date))).toUTCString() === 'Invalid Date'){
+      res.json({
+        error: "Invalid Date"
+      });
+    } else{
+    if(!valid){
+      res.json({   
+        unix : Number(req.params.date),
+        utc : (new Date(parseInt(req.params.date))).toUTCString()
+        });  
+    }
+    else{
+      res.json({   
+        unix : variavelData.valueOf(),
+        utc : variavelData.toUTCString()
+        });
+      }
+    }
+  });
+  
+  // listen for requests :)
+  var listener = app.listen(port, function () {
+    console.log('Your app is listening on port ' + listener.address().port);
 });
 
-// listen for requests :)
-var listener = app.listen(port, function () {
-  console.log('Your app is listening on port ' + listener.address().port);
-});
-
-
-//POSSA SER QUE EU VÁ USAR DEPOIS
-
-// var date = new Date();
-// var year = date.getFullYear();
-// var month = String(date.getMonth() + 1).padStart(2, '0');
-// var day = String(date.getDate()).padStart(2, '0');
-// date = year+'-'+month+'-'+day;
-// res.json({
-//   time: date,
-//   day: day,
-//   month: month,
-//   year: year
-// });
